@@ -69,9 +69,9 @@ public class ClassPathXmlApplicationContext {
         //实现对象的属性的依赖注入
         doDI();
 
-        System.out.println("iocNameContainer = " + iocNameContainer);
-        System.out.println("iocClassContainer = " + iocClassContainer);
-        System.out.println("iocInterfacesContainer = " + iocInterfacesContainer);
+        logger.fatal("iocNameContainer {}", iocNameContainer);
+        logger.fatal("iocClassContainer {}", iocClassContainer);
+        logger.fatal("iocInterfacesContainer {}", iocInterfacesContainer);
     }
 
     private void doDI() {
@@ -109,7 +109,10 @@ public class ClassPathXmlApplicationContext {
     private static File findClassPath(String componentScanPath) {
         String path = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getPath();
         String url = path + componentScanPath.replace(".", File.separator);
-        url = url.replaceFirst("/", "");
+        // windows环境去除路径前面的 '/'
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            url = url.replaceFirst("/", "");
+        }
         if (url.contains("test-classes")) {
             url = url.replace("test-classes", "classes");
         }
@@ -146,7 +149,6 @@ public class ClassPathXmlApplicationContext {
                 throw e;
             }
         }
-        logger.info("ioc容器 {}", iocNameContainer);
     }
 
     public Object getBean(String beanName) {
@@ -156,7 +158,7 @@ public class ClassPathXmlApplicationContext {
     public <T> T getBean(Class<T> clazz) {
         //首先根据class获取，获取不到再通过接口获取
         if (iocClassContainer.containsKey(clazz)) {
-            return (T)iocClassContainer.get(clazz);
+            return (T) iocClassContainer.get(clazz);
         }
         List<Object> computed = iocInterfacesContainer.compute(clazz, (key, value) -> {
             if (value == null || value.isEmpty()) {
@@ -167,15 +169,11 @@ public class ClassPathXmlApplicationContext {
             }
             return value;
         });
-        return computed == null ? null : (T)computed.get(0);
+        return computed == null ? null : (T) computed.get(0);
     }
 
     public static String getBeanName(Class<?> c) {
-        Annotation[] annotations = new Annotation[]{
-                c.getAnnotation(Component.class),
-                c.getAnnotation(Controller.class),
-                c.getAnnotation(Service.class)
-        };
+        Annotation[] annotations = new Annotation[]{c.getAnnotation(Component.class), c.getAnnotation(Controller.class), c.getAnnotation(Service.class)};
         try {
             Annotation annotation = Arrays.stream(annotations).filter(Objects::nonNull).findFirst().orElseThrow(() -> new IllegalArgumentException("未找到注解类型"));
             Method valueMethod = annotation.annotationType().getDeclaredMethod("value");
@@ -187,13 +185,11 @@ public class ClassPathXmlApplicationContext {
             // 处理异常: 可能是注解没有value()方法，或者其他反射调用错误
             logger.error("获取beanName 失败 {}", e.getMessage());
         }
-
         //没指定beanName 默认用类型首字母小写
         return Character.toLowerCase(c.getSimpleName().charAt(0)) + c.getSimpleName().substring(1);
     }
 
     private void findClassFiles(File classFiles, String componentScanPath, Set<String> classNameList) {
-
         File[] files = classFiles.listFiles();
         if (files != null) {
             for (File file : files) {

@@ -21,6 +21,7 @@ public class MainTest {
         //通过名称获取
         EmployeesController bean = (EmployeesController)classPathXmlApplicationContext.getBean("oc");
         bean.findEmployees();
+        bean.selectById(1);
 
     }
 }

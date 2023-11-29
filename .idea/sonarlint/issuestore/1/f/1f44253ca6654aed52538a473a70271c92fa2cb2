@@ -1,0 +1,10 @@
+
+L	java:S106H"+Replace this use of System.out by a logger.(ùù¥·ùÿÿÿÿ8°íÍÔÁ1
+G	java:S106I"+Replace this use of System.out by a logger.(¼Ş¸8±íÍÔÁ1
+L	java:S106J"+Replace this use of System.out by a logger.(ñòô›úÿÿÿÿ8±íÍÔÁ1
+I
+java:S3011d",This accessibility update should be removed.(˜ÂÓ˜8‰ÁÔÁ1
+N
+java:S3011e",This accessibility bypass should be removed.(Ç²ùşÿÿÿÿ8‰ÁÔÁ1
+o
+java:S3776w"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(¯†®ü8‘‰ÁÔÁ1
